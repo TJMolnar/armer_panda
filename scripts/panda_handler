@@ -1,0 +1,8 @@
+#!/usr/bin/python
+
+from armer_panda.PandaHandlerNode import PandaHandlerNode
+
+# entrypoint
+if __name__ == "__main__":
+    panda_handler = PandaHandlerNode()
+    panda_handler.main()

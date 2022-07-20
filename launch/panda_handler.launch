@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- 
+    connection information can be passed as args to the launch file, but if not then they will look for the 
+    specified environment variable instead 
+  -->
+  <arg name="robot_ip" default="$(optenv PANDA_IP 172.16.0.2)" />
+  <arg name="username" default="$(optenv PANDA_USER franka)" />
+  <arg name="password" default="$(optenv PANDA_PASSWORD password)"/>
+
+  <node name="panda_handler_node" pkg="armer_panda" type="panda_handler" output="screen">
+    <!-- connection information -->
+    <param name="robot_ip" value="$(arg robot_ip)"/>
+    <param name="username" value="$(arg username)"/>
+    <param name="password" value="$(arg password)"/>
+    
+    <!-- How many times do we retry when establishing connection ( < 0 means retry indefinitely )-->
+    <param name="connection_retries" value="-1"/>
+
+    <!-- auto start settings: If true, node will attempt to perform the requested action on startup -->
+    <param name="auto_acquire_control" value="false"/>
+    <param name="force_auto_acquire" value="true"/>
+    <!-- the following actions require control, thus they will fail if auto_acquire_control is false -->
+    <param name="auto_open_brakes" value="false"/>
+    <param name="auto_home_gripper" value="false"/>
+    <!-- FCI recquires brakes to be opened, thus auto_enable_fci will fail if auto_open_brakes is false -->
+    <param name="auto_enable_fci" value="false"/>
+  </node>
+</launch>
