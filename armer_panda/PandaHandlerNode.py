@@ -28,6 +28,9 @@ class PandaHandlerNode():
     """ handles cleanup on shutdown of node """
     if self.panda_connector is not None:
       
+      while (self.panda_connector.calling):
+        rospy.sleep(0.5)
+
       if not self.panda_connector.close_brakes():
         rospy.logerr("Unable to close brakes")
       else:
@@ -143,15 +146,28 @@ class PandaHandlerNode():
 
     rospy.loginfo("Login successful")
 
-
+    # check if the control token system is required (firmware >4.2.0)
     if self.panda_connector.control_token_req:
+
       rospy.loginfo("Panda arm requires single point of control, use control_authority/acquire and control_authority/release to control")
+      # if auto acquire is true, attempt to start up
       if auto_acquire_control:
-        if self.panda_connector.acquire_control_token(force=force_auto_acquire):
+        
+        # attempt a standard control authority request and assess
+        if self.panda_connector.acquire_control_token(False):
           rospy.loginfo("Control authority acquired")
+        elif force_auto_acquire:
+          # if the above fails, someone else may have control, thus we may need to enfore control, inform system
+          rospy.logwarn("Control authority not acquired! Attempting to force, please push physical button on the arm")
+          if self.panda_connector.acquire_control_token(True):
+            rospy.loginfo("Control authority acquired")
+          else:
+            rospy.logerr("Unable to auto acquire control")
+            return
         else:
           rospy.logerr("Unable to auto acquire control")
           return
+
     else:
       rospy.loginfo("Panda arm does not require single point of control")
 
@@ -169,7 +185,7 @@ class PandaHandlerNode():
         rospy.logerr("Unable to auto home gripper, aborting")
         return
 
-    if auto_enable_fci :
+    if auto_enable_fci:
       if self.panda_connector.enable_fci():
         rospy.loginfo("FCI Enabled, ready for ros control")
       else:
@@ -183,8 +199,8 @@ class PandaHandlerNode():
     rospy.Service("control_authority/release", Trigger, self.handle_release_control)
     rospy.Service("fci/enable", Trigger, self.handle_enable_fci)
     rospy.Service("fci/disable", Trigger, self.handle_disable_fci)
-    rospy.Service("open_brakes", Trigger, self.handle_open_brakes)
-    rospy.Service("close_brakes", Trigger, self.handle_close_brakes)
+    rospy.Service("brakes/open", Trigger, self.handle_open_brakes)
+    rospy.Service("brakes/close", Trigger, self.handle_close_brakes)
     rospy.Service("home_gripper", Trigger, self.handle_home_gripper)
 
     # spin

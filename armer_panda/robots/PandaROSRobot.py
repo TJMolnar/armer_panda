@@ -31,7 +31,12 @@ class PandaROSRobot(ROSRobot):
                  *args,
                  **kwargs):
 
+        print("STARTING PANDA ROS ROBOT")
+        
         super().__init__(robot, *args, **kwargs)
+
+        print("Base_link: {}, Urdf: {}".format(robot.base_link.name, robot.urdf_string))
+
         self.controller_name = controller_name \
             if controller_name else self.joint_velocity_topic.split('/')[1]
 
@@ -55,6 +60,8 @@ class PandaROSRobot(ROSRobot):
 
         # Error recovery action server
         self.reset_client = actionlib.SimpleActionClient('/franka_control/error_recovery', ErrorRecoveryAction)
+        
+        print("STARTED PANDA ROS ROBOT")
 
     def recover_cb(self, req: EmptyRequest) -> EmptyResponse: # pylint: disable=no-self-use
         """[summary]

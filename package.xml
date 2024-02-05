@@ -49,6 +49,7 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
+  <depend>python3-packaging</depend>
   <depend>franka_hw</depend>
   <depend>franka_msgs</depend>
   <depend>franka_control</depend>

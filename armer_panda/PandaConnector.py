@@ -133,6 +133,7 @@ class PandaConnector:
     res, resp = self.__call('https://{}/admin/api/control-token'.format(self.robot_ip), reqtype='GET')
     if not res:
       return False
+    
     # if noone has control, activeToken is null
     active_token = json.loads(resp.text)['activeToken']
     if active_token is None:
@@ -174,7 +175,9 @@ class PandaConnector:
     attempts = 0
     while attempts < retries + 1:
       try:
+        self.calling = True
         resp = self.session.request(reqtype, endpoint, json=json, verify=False, timeout=10)
+        self.calling = False
         if resp.status_code == 200:
           return True, resp
         else:
