@@ -12,7 +12,6 @@ event = threading.Event()
 signal.signal(signal.SIGINT, lambda *args: event.set())
 signal.signal(signal.SIGTERM, lambda *args: event.set())
 
-
 def main():
   robot_ip = '172.16.0.2'
   command = None
